@@ -320,6 +320,7 @@ input[type=number]::-webkit-inner-spin-button{opacity:.4}
 .archive-btn:hover{filter:brightness(1.2)}
 
 /* ============ МОДАЛКИ ============ */
+.modal-overlay[hidden]{display:none}
 .modal-overlay{
   position:fixed;inset:0;z-index:300;background:rgba(8,6,4,.82);
   display:grid;place-items:center;padding:20px;backdrop-filter:blur(3px);
