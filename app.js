@@ -13,7 +13,7 @@
     target: 5.5,
     heGrams: 12,
     operatorName: 'Оператор',
-    archiveCode: '1608',
+    archiveCode: '2111',
     polymer: 0,
     directives: [],
     customFoods: [],
@@ -33,6 +33,7 @@
       const raw = localStorage.getItem(LS_KEY);
       if (!raw) return structuredClone(DEFAULTS);
       const saved = JSON.parse(raw);
+      if (saved.archiveCode === '1608' || saved.archiveCode === 1608) saved.archiveCode = '2111';
       const p = Object.assign(structuredClone(DEFAULTS), saved);
       p.calc = Object.assign({}, DEFAULTS.calc, saved.calc || {});
       return p;
@@ -514,7 +515,7 @@
 
   function tryPin() {
     const val = $('pinInput').value.trim();
-    const code = String($('archiveCode').value || '1608').trim();
+    const code = String($('archiveCode').value || '2111').trim();
     if (val && val === code) {
       $('pinModal').hidden = true;
       openCertificate();
