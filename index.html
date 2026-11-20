@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#161310">
+<title>ПРЕДПРИЯТИЕ 3826 — Пульт оператора</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="scanlines" aria-hidden="true"></div>
+<div class="noise" aria-hidden="true"></div>
+
+<!-- ============ СТАТУС-БАР ХРАЗ ============ -->
+<header class="statusbar">
+  <div class="brand">
+    <div class="brand-star">★</div>
+    <div class="brand-text">
+      <span class="brand-title">ХРАЗ-3826</span>
+      <span class="brand-sub">ГЛАВНЫЙ ПУЛЬТ ОПЕРАТОРА · КАФЕДРА БИОМЕХАНИКИ</span>
+    </div>
+  </div>
+  <div class="status-feed"><span id="statusText">Инициализация терминала…</span></div>
+  <div class="statusbar-right">
+    <div class="rank-chip">
+      <span class="rank-label">РАНГ</span>
+      <span id="rankName">Стажер 3826</span>
+      <span id="rankLevel">УР. 1</span>
+    </div>
+    <div class="clock" id="clock">--:--:--</div>
+    <button class="icon-btn" id="soundToggle" title="Звук вкл/выкл" aria-label="Звук">🔊 <span id="soundState">ЗВУК</span></button>
+  </div>
+</header>
+
+<!-- ============ РАНГ-ШКАЛА ============ -->
+<div class="xp-strip">
+  <div class="xp-strip-inner">
+    <span class="xp-caption">ШКАЛА ПОЛИМЕРА</span>
+    <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+    <span class="xp-count" id="xpCount">0 ⬢</span>
+  </div>
+</div>
+
+<main class="deck">
+
+  <!-- ============ ДВУХКОЛОНОЧНЫЙ РЯД 1 ============ -->
+  <section class="panel panel-calculator">
+    <div class="panel-head">
+      <h2>◈ МОДУЛЬ «БИОМЕТРИЯ И ПОЛИМЕР»</h2>
+      <button class="icon-btn gear" id="settingsToggle" title="Персональные коэффициенты">⚙</button>
+    </div>
+
+    <div class="panel-body">
+      <div class="calc-layout">
+
+        <!-- Колонка еды -->
+        <div class="calc-col">
+          <div class="sub-head">БАЗА БЫСТРОЙ ЕДЫ <span class="sub-note">— 1 нажатие = 1 порция в расчёт</span></div>
+          <div class="food-grid" id="foodGrid"></div>
+          <form class="food-add" id="foodAddForm">
+            <input type="text" id="foodName" placeholder="Свой продукт" maxlength="24" required>
+            <input type="number" id="foodCarbs" placeholder="Углев., г" min="0" max="500" step="1" required>
+            <button type="submit" class="btn btn-ghost">+ В БАЗУ</button>
+          </form>
+
+          <div class="sub-head" style="margin-top:14px">РУЧНОЙ ВВОД</div>
+          <div class="manual-row">
+            <label class="field">
+              <span class="field-label">УГЛЕВОДЫ, Г</span>
+              <input type="number" id="carbInput" min="0" step="1" placeholder="0">
+            </label>
+            <span class="or-divider">ИЛИ</span>
+            <label class="field">
+              <span class="field-label">ХЛЕБНЫЕ ЕДИНИЦЫ</span>
+              <input type="number" id="heInput" min="0" step="0.5" placeholder="0">
+            </label>
+          </div>
+          <div class="he-sync" id="heSync">1 ХЕ = 12 Г УГЛЕВОДОВ</div>
+        </div>
+
+        <!-- Колонка сахара -->
+        <div class="calc-col">
+          <div class="sub-head">ТЕКУЩИЙ САХАР И КОРРЕКЦИЯ</div>
+          <label class="field field-glucose">
+            <span class="field-label">ГЛЮКОЗА, ММОЛЬ/Л</span>
+            <input type="number" id="glucoseInput" min="1" max="35" step="0.1" placeholder="5.5">
+          </label>
+          <div class="glucose-hint" id="glucoseHint">—</div>
+
+          <div class="verdict" id="verdict">
+            <div class="verdict-label">ПРИКАЗ ПО ДОЗИРОВКЕ</div>
+            <div class="verdict-dose" id="verdictDose">—.—</div>
+            <div class="verdict-unit" id="verdictUnit">ЕД ИНСУЛИНА</div>
+            <div class="verdict-breakdown" id="verdictBreakdown">Введите еду и сахар</div>
+          </div>
+          <button class="btn btn-primary btn-inject" id="injectBtn">✚ ИНЪЕКЦИЯ ВЫПОЛНЕНА</button>
+
+          <div class="iob-box">
+            <div class="sub-head">АКТИВНЫЙ ИНСУЛИН (IOB) <span class="sub-note">— распад 4 ч</span></div>
+            <div class="iob-row">
+              <span class="iob-value" id="iobValue">0.0 ЕД</span>
+              <span class="iob-timer" id="iobTimer">—</span>
+            </div>
+            <div class="iob-bar"><div class="iob-fill" id="iobFill"></div></div>
+            <div class="iob-warning" id="iobWarning" hidden>⚠ В ОРГАНИЗМЕ ЕСТЬ ИНСУЛИН — ВНИМАТЕЛЬНО С ПОВТОРНЫМ БОЛЮСОМ</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Настройки -->
+      <div class="settings" id="settingsPane" hidden>
+        <div class="sub-head">ПЕРСОНАЛЬНЫЕ КОЭФФИЦИЕНТЫ <span class="sub-note">— заполни один раз со своим врачом</span></div>
+        <div class="settings-grid">
+          <label class="field"><span class="field-label">УК УТРО (ЕД на 1 ХЕ)</span><input type="number" id="ukMorning" step="0.1" min="0"></label>
+          <label class="field"><span class="field-label">УК ДЕНЬ (ЕД на 1 ХЕ)</span><input type="number" id="ukDay" step="0.1" min="0"></label>
+          <label class="field"><span class="field-label">УК ВЕЧЕР (ЕД на 1 ХЕ)</span><input type="number" id="ukEvening" step="0.1" min="0"></label>
+          <label class="field"><span class="field-label">ФЧИ (снижение, ммоль/л на 1 ЕД)</span><input type="number" id="icf" step="0.1" min="0.1"></label>
+          <label class="field"><span class="field-label">ЦЕЛЬ (ммоль/л)</span><input type="number" id="target" step="0.1" min="3"></label>
+          <label class="field"><span class="field-label">1 ХЕ = ? Г УГЛЕВОДОВ</span><input type="number" id="heGrams" step="1" min="5" max="15"></label>
+          <label class="field"><span class="field-label">ИМЯ ОПЕРАТОРА</span><input type="text" id="operatorName" maxlength="32" placeholder="Оператор"></label>
+          <label class="field"><span class="field-label">КОД АРХИВА (цифры)</span><input type="text" id="archiveCode" maxlength="8" placeholder="1608"></label>
+        </div>
+        <div class="settings-actions">
+          <button class="btn btn-ghost" id="exportBtn">⬇ ЭКСПОРТ ПРОФИЛЯ (JSON)</button>
+          <label class="btn btn-ghost btn-file">⬆ ИМПОРТ ПРОФИЛЯ<input type="file" id="importInput" accept="application/json" hidden></label>
+          <button class="btn btn-danger" id="wipeBtn">СБРОС ТЕРМИНАЛА</button>
+        </div>
+        <p class="settings-disclaimer">Значения по умолчанию — демонстрационные. Реальные УК/ФЧИ подбирает врач. Расчёты не заменяют консультацию.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="stack">
+    <!-- ============ БЫСТРЫЙ ЗАПУСК ============ -->
+    <section class="panel">
+      <div class="panel-head"><h2>◈ БЫСТРЫЙ ЗАПУСК ТЕРМИНАЛОВ</h2></div>
+      <div class="panel-body">
+        <div class="tiles" id="tilesGrid"></div>
+        <form class="tile-add" id="tileAddForm">
+          <input type="text" id="tileName" placeholder="Название терминала" maxlength="20" required>
+          <input type="url" id="tileUrl" placeholder="https://..." required>
+          <button type="submit" class="btn btn-ghost">+ ДОБАВИТЬ ТЕРМИНАЛ</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ ДИРЕКТИВЫ ============ -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>◈ ОПЕРАТИВНЫЕ ДИРЕКТИВЫ</h2>
+        <span class="badge" id="tasksBadge">0 из 0</span>
+      </div>
+      <div class="panel-body">
+        <form class="directive-add" id="directiveForm">
+          <input type="text" id="directiveInput" placeholder="Приказ… (домашка, аптека, апнуть ранг)" maxlength="120" required>
+          <button type="submit" class="btn btn-primary">ВЫДАТЬ</button>
+        </form>
+        <ul class="directive-list" id="directiveList"></ul>
+        <div class="directive-footer">
+          <span class="plus-caption">За выполненную директиву — <b>+10 полимеров</b> на шкалу ранга</span>
+          <button class="btn btn-ghost btn-small" id="clearDoneBtn">ОЧИСТИТЬ ВЫПОЛНЕННЫЕ</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ============ СЕКРЕТНЫЙ ПРОТОКОЛ ============ -->
+<button class="archive-btn" id="archiveBtn">АРХИВ: ДР-16<br><span class="archive-btn-sub">СЕКРЕТНЫЙ ПРОТОКОЛ</span></button>
+
+<footer class="footer">
+  <span>ПОДРАЗДЕЛЕНИЕ 3826 · ВСЕ РАСЧЁТЫ ЛОКАЛЬНЫ, ДАННЫЕ ХРАНЯТСЯ ТОЛЬКО В ВАШЕМ БРАУЗЕРЕ</span>
+  <span class="footer-note">Не является медицинским назначением</span>
+</footer>
+
+<!-- ============ МОДАЛКА АРХИВА ============ -->
+<div class="modal-overlay" id="archiveModal" hidden>
+  <div class="modal certificate">
+    <div class="cert-border">
+      <div class="cert-star">★ ★ ★</div>
+      <div class="cert-org">СОВЕТ ПРОФСОЮЗА · СЕКТОР ГАСТРУОНОМИИ · ФОРМА №3826/А</div>
+      <h3 class="cert-title">ПРИКАЗ №16 ПО ПРЕДПРИЯТИЮ 3826</h3>
+      <div class="cert-class">ГРИФ: «ЛЕСТНИЦА В АРХИВ ВЛАДИМИРА ЛЕОНИДОВИЧА»</div>
+      <div class="cert-body" id="certBody"></div>
+      <div class="cert-sign">
+        <div><span class="cert-sign-label">ГЛАВНЫЙ ХРАЗ</span><span>М. П. (печать — отпечаток шаурмы)</span></div>
+        <div class="cert-stamp">ОДОБРЕНО<br>ЛЮБОЙ</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost modal-close" id="archiveClose">ЗАКРЫТЬ ПРИКАЗ</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="pinModal" hidden>
+  <div class="modal modal-pin">
+    <h3 class="cert-title">ВВЕДИТЕ КОД АРХИВА</h3>
+    <input type="text" id="pinInput" inputmode="numeric" maxlength="8" placeholder="••••" autocomplete="off">
+    <div class="pin-error" id="pinError" hidden>ДОСТУП ЗАПРЕЩЁН. НЕ ПРОБОЙ СИСТЕМУ, ТОВАРИЩ.</div>
+    <div class="pin-actions">
+      <button class="btn btn-primary" id="pinSubmit">ПОДТВЕРДИТЬ</button>
+      <button class="btn btn-ghost" id="pinCancel">ОТМЕНА</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
