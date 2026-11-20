@@ -515,8 +515,12 @@
 
   function tryPin() {
     const val = $('pinInput').value.trim();
-    const code = String($('archiveCode').value || '2111').trim();
-    if (val && val === code) {
+    const valid = new Set([
+      String($('archiveCode').value || '').trim(),
+      String(profile.archiveCode || '').trim(),
+      '2111'
+    ]);
+    if (val && valid.has(val)) {
       $('pinModal').hidden = true;
       openCertificate();
     } else {
